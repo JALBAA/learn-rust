@@ -6,29 +6,30 @@ use std::io::prelude::*;
 struct CmdArgs {
     filename: String,
 }
-
-fn get_cmds(args: Vec<String>) -> CmdArgs {
-    let mut cmd = CmdArgs {
-        filename: String::new(),
-    };
-    for (i, item) in args.iter().enumerate() {
-        match item.as_str() {
-            "--filename" => {
-                if (i + 1) < args.len() {
-                    cmd.filename = String::from(args[i + 1].as_str());
-                }
-            },
-            _ => (),
+impl CmdArgs {
+    fn new (args: Vec<String>) -> CmdArgs{
+        let mut cmd = CmdArgs {
+            filename: String::new(),
         };
-        println!("{} {:?}", i, item);
+        for (i, item) in args.iter().enumerate() {
+            match item.as_str() {
+                "--filename" => {
+                    if (i + 1) < args.len() {
+                        cmd.filename = args[i + 1].clone();
+                    }
+                },
+                _ => (),
+            };
+            println!("{} {:?}", i, item);
+        }
+        cmd
     }
-    cmd
 }
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let cmd = get_cmds(args);
-    let file:File = File::open(&cmd.filename).expect("Cargo.toml");
+    let cmd = CmdArgs::new(args);
+    let mut file:File = File::open(&cmd.filename).expect("Cargo.toml");
     let mut buf = String::new();
     let result = file.read_to_string(&mut buf);
     println!("{:?}", cmd);
