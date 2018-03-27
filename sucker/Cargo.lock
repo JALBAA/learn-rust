@@ -1,0 +1,11 @@
+[root]
+name = "sucker"
+version = "0.1.0"
+dependencies = [
+ "modLearn 0.1.0",
+]
+
+[[package]]
+name = "modLearn"
+version = "0.1.0"
+

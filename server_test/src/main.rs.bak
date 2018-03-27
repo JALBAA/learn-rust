@@ -1,0 +1,97 @@
+// #[macro_use(bson, doc)]
+// extern crate bson;
+// extern crate mongodb;
+// use bson::Bson;
+// use mongodb::{Client, ThreadedClient};
+// use mongodb::db::ThreadedDatabase;
+// fn main() {
+//     let client = Client::connect("localhost", 27017)
+//         .expect("Failed to initialize standalone client.");
+//     let db = client.db("test");
+//     let result = db.collection_names(None);
+//     println!("{:?}", result);
+    // let doc = doc! { "title" => "Jaws",
+    //                   "array" => [ 1, 2, 3 ] };
+
+    // // Insert document into 'test.movies' collection
+    // coll.insert_one(doc.clone(), None)
+    //     .ok().expect("Failed to insert document.");
+
+    // // Find the document and receive a cursor
+    // let mut cursor = coll.find(Some(doc.clone()), None)
+    //     .ok().expect("Failed to execute find.");
+
+    // let item = cursor.next();
+
+    // // cursor.next() returns an Option<Result<Document>>
+    // match item {
+    //     Some(Ok(doc)) => match doc.get("title") {
+    //         Some(&Bson::String(ref title)) => println!("{}", title),
+    //         _ => panic!("Expected title to be a string!"),
+    //     },
+    //     Some(Err(_)) => panic!("Failed to get next from server!"),
+    //     None => panic!("Server returned no results!"),
+    // }
+// }
+
+// A Hello World example application for working with Gotham.
+
+extern crate futures;
+extern crate gotham;
+#[macro_use]
+extern crate gotham_derive;
+extern crate hyper;
+extern crate mime;
+
+use std::net::{ToSocketAddrs, SocketAddr};
+
+use hyper::{Response, StatusCode};
+
+
+use gotham::http::response::create_response;
+use gotham::state;
+use gotham::state::State;
+
+/// Create a `Handler` which is invoked when responding to a `Request`.
+///
+/// How does a function become a `Handler`?.
+/// We've simply implemented the `Handler` trait, for functions that match the signature used here,
+/// within Gotham itself.
+/// 
+pub fn say_hello(state: State) -> (State, Response) {
+    let res = create_response(
+        &state,
+        StatusCode::Ok,
+        Some((String::from("Hello World!").into_bytes(), mime::TEXT_PLAIN)),
+    );
+    println!("{:?}", &state);
+    (state, res)
+}
+
+/// Start a server and call the `Handler` we've defined above for each `Request` we receive.
+pub fn main() {
+    let addr = SocketAddr::from(([0, 0, 0, 0], 7878));//"0.0.0.0:7878";
+    println!("Listening for requests at http://{}", addr);
+    gotham::start(addr, || Ok(say_hello))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use gotham::test::TestServer;
+
+    #[test]
+    fn receive_hello_world_response() {
+        let test_server = TestServer::new(|| Ok(say_hello)).unwrap();
+        let response = test_server
+            .client()
+            .get("http://localhost")
+            .perform()
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::Ok);
+
+        let body = response.read_body().unwrap();
+        assert_eq!(&body[..], b"Hello World!");
+    }
+}

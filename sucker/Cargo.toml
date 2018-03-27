@@ -1,0 +1,7 @@
+[package]
+name = "sucker"
+version = "0.1.0"
+authors = ["zhaoye-ds1 <zhaoye-ds1@gomeplus.com>"]
+
+[dependencies]
+modLearn = {path = "../modLearn"}
