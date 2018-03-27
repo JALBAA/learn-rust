@@ -9,6 +9,5 @@ fn main() {
         result = longest(&string1[0..], string2.as_str());
     }
 
-
     println!("The longest string is {}", result);
 }
