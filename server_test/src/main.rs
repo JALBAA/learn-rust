@@ -1,4 +1,5 @@
 struct HelloWorld;
+
 extern crate hyper;
 extern crate futures;
 
@@ -8,7 +9,6 @@ use hyper::header::ContentLength;
 use hyper::server::{Http, Request, Response, Service};
 
 const PHRASE: &'static str = "Hello, World!";
-
 
 impl Service for HelloWorld {
     // boilerplate hooking up hyper's server types
@@ -20,7 +20,7 @@ impl Service for HelloWorld {
     type Future = Box<Future<Item=Self::Response, Error=Self::Error>>;
 
     fn call(&self, _req: Request) -> Self::Future {
-        println!("{:?}", _req.path());
+        // println!("{}", _req.toString());
         // We're currently ignoring the Request
         // And returning an 'ok' Future, which means it's ready
         // immediately, and build a Response with the 'PHRASE' body.
@@ -34,6 +34,8 @@ impl Service for HelloWorld {
 
 fn main() {
     let addr = "127.0.0.1:9999".parse().unwrap();
-    let server = Http::new().bind(&addr, || Ok(HelloWorld)).unwrap();
+    let server = Http::new().bind(&addr, || {
+        Ok(HelloWorld)
+    }).unwrap();
     server.run().unwrap();
 }
